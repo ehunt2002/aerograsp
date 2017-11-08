@@ -264,10 +264,10 @@ CREATE TABLE IF NOT EXISTS `aimcs`.`contact_information` (
   `CITY_ID` INT NOT NULL,
   `TIMEZONE_ID` INT NOT NULL,
   PRIMARY KEY (`ID`),
-  UNIQUE INDEX `PK_CONTACT_INFORMATION` (`ID` ASC),
   INDEX `fk_contact_information_Country1_idx` (`Country_ID` ASC),
   INDEX `fk_contact_information_CITY1_idx` (`CITY_ID` ASC),
   INDEX `fk_contact_information_TIMEZONE1_idx` (`TIMEZONE_ID` ASC),
+  INDEX `keyidx` (`ID` ASC),
   CONSTRAINT `fk_contact_information_Country1`
     FOREIGN KEY (`Country_ID`)
     REFERENCES `aimcs`.`country` (`ID`)
@@ -473,6 +473,197 @@ CREATE TABLE IF NOT EXISTS `aimcs`.`exchange_rate` (
   CONSTRAINT `fk_EXCHANGE_RATE_CURRENCY2`
     FOREIGN KEY (`CURRENCY`)
     REFERENCES `aimcs`.`currency` (`ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `aimcs`.`DANGEROUS_GOODS_CLS_CODE`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `aimcs`.`DANGEROUS_GOODS_CLS_CODE` (
+  `ID` INT NOT NULL,
+  `CLASS_CODE` VARCHAR(45) NOT NULL,
+  `DESCRIPTION` VARCHAR(45) NULL,
+  PRIMARY KEY (`ID`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `aimcs`.`PACKAGING_INSTRUCTION_CODE`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `aimcs`.`PACKAGING_INSTRUCTION_CODE` (
+  `ID` INT NOT NULL,
+  `CODE` VARCHAR(45) NOT NULL,
+  `DESC` VARCHAR(45) NULL,
+  PRIMARY KEY (`ID`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `aimcs`.`PACKAGING_GROUP_CODE`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `aimcs`.`PACKAGING_GROUP_CODE` (
+  `ID` INT NOT NULL,
+  `CODE` VARCHAR(45) NOT NULL,
+  `DESCRIPTION` VARCHAR(45) NULL,
+  PRIMARY KEY (`ID`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `aimcs`.`manufacturer`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `aimcs`.`manufacturer` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  `contact_information_ID` INT(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_manufacturer_contact_information1_idx` (`contact_information_ID` ASC),
+  CONSTRAINT `fk_manufacturer_contact_information1`
+    FOREIGN KEY (`contact_information_ID`)
+    REFERENCES `aimcs`.`contact_information` (`ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `aimcs`.`ata_code`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `aimcs`.`ata_code` (
+  `id` INT NOT NULL,
+  `CODE` VARCHAR(45) NOT NULL,
+  `DESCRIPTION` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `aimcs`.`part`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `aimcs`.`part` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `part_no` VARCHAR(45) NOT NULL,
+  `serial_no` VARCHAR(45) NULL,
+  `batch_no` VARCHAR(45) NULL,
+  `symbol_no` VARCHAR(45) NULL,
+  `shelf_life` VARCHAR(45) NULL,
+  `is_assembly` VARCHAR(45) NOT NULL,
+  `ipc_no` VARCHAR(45) NULL,
+  `figure_index` VARCHAR(45) NULL,
+  `clock_position` VARCHAR(45) NULL,
+  `un_code` VARCHAR(45) NULL,
+  `aircraft_type_ID` INT(11) NOT NULL,
+  `parent_assembly_id` INT NOT NULL,
+  `DANGEROUS_GOODS_CLS_CODE_ID` INT NOT NULL,
+  `PACKAGING_INSTRUCTION_CODE_ID` INT NOT NULL,
+  `PACKAGING_GROUP_CODE_ID` INT NOT NULL,
+  `manufacturer_id` INT NOT NULL,
+  `ata_code_id` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_part_aircraft_type1_idx` (`aircraft_type_ID` ASC),
+  INDEX `fk_part_part1_idx` (`parent_assembly_id` ASC),
+  INDEX `fk_part_DANGEROUS_GOODS_CLS_CODE1_idx` (`DANGEROUS_GOODS_CLS_CODE_ID` ASC),
+  INDEX `fk_part_PACKAGING_INSTRUCTION_CODE1_idx` (`PACKAGING_INSTRUCTION_CODE_ID` ASC),
+  INDEX `fk_part_PACKAGING_GROUP_CODE1_idx` (`PACKAGING_GROUP_CODE_ID` ASC),
+  INDEX `fk_part_manufacturer1_idx` (`manufacturer_id` ASC),
+  INDEX `fk_part_ata_code1_idx` (`ata_code_id` ASC),
+  CONSTRAINT `fk_part_aircraft_type1`
+    FOREIGN KEY (`aircraft_type_ID`)
+    REFERENCES `aimcs`.`aircraft_type` (`ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_part_part1`
+    FOREIGN KEY (`parent_assembly_id`)
+    REFERENCES `aimcs`.`part` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_part_DANGEROUS_GOODS_CLS_CODE1`
+    FOREIGN KEY (`DANGEROUS_GOODS_CLS_CODE_ID`)
+    REFERENCES `aimcs`.`DANGEROUS_GOODS_CLS_CODE` (`ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_part_PACKAGING_INSTRUCTION_CODE1`
+    FOREIGN KEY (`PACKAGING_INSTRUCTION_CODE_ID`)
+    REFERENCES `aimcs`.`PACKAGING_INSTRUCTION_CODE` (`ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_part_PACKAGING_GROUP_CODE1`
+    FOREIGN KEY (`PACKAGING_GROUP_CODE_ID`)
+    REFERENCES `aimcs`.`PACKAGING_GROUP_CODE` (`ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_part_manufacturer1`
+    FOREIGN KEY (`manufacturer_id`)
+    REFERENCES `aimcs`.`manufacturer` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_part_ata_code1`
+    FOREIGN KEY (`ata_code_id`)
+    REFERENCES `aimcs`.`ata_code` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `aimcs`.`vendor`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `aimcs`.`vendor` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  `contact_information_ID` INT(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_vendor_contact_information1_idx` (`contact_information_ID` ASC),
+  CONSTRAINT `fk_vendor_contact_information1`
+    FOREIGN KEY (`contact_information_ID`)
+    REFERENCES `aimcs`.`contact_information` (`ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `aimcs`.`part_has_vendor`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `aimcs`.`part_has_vendor` (
+  `part_id` INT NOT NULL,
+  `vendor_id` INT NOT NULL,
+  PRIMARY KEY (`part_id`, `vendor_id`),
+  INDEX `fk_part_has_vendor_vendor1_idx` (`vendor_id` ASC),
+  INDEX `fk_part_has_vendor_part1_idx` (`part_id` ASC),
+  CONSTRAINT `fk_part_has_vendor_part1`
+    FOREIGN KEY (`part_id`)
+    REFERENCES `aimcs`.`part` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_part_has_vendor_vendor1`
+    FOREIGN KEY (`vendor_id`)
+    REFERENCES `aimcs`.`vendor` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `aimcs`.`alternate_part`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `aimcs`.`alternate_part` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `part_id` INT NOT NULL,
+  `alternate_part_id` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_alternate_part_part1_idx` (`part_id` ASC),
+  INDEX `fk_alternate_part_part2_idx` (`alternate_part_id` ASC),
+  CONSTRAINT `fk_alternate_part_part1`
+    FOREIGN KEY (`part_id`)
+    REFERENCES `aimcs`.`part` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_alternate_part_part2`
+    FOREIGN KEY (`alternate_part_id`)
+    REFERENCES `aimcs`.`part` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
