@@ -669,6 +669,102 @@ CREATE TABLE IF NOT EXISTS `aimcs`.`alternate_part` (
 ENGINE = InnoDB;
 
 
+-- -----------------------------------------------------
+-- Table `aimcs`.`job_type`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `aimcs`.`job_type` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `type_name` VARCHAR(45) NOT NULL,
+  `type_code` VARCHAR(45) NOT NULL,
+  `is_inspection` CHAR(1) NOT NULL,
+  `TBI_hrs` VARCHAR(45) NULL,
+  `TBI_mnths` VARCHAR(45) NULL,
+  `TBI_days` VARCHAR(45) NULL,
+  `man_hrs_scale` VARCHAR(45) NULL,
+  `rate_per_mh` VARCHAR(45) NULL,
+  `ata_code_id` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_job_type_ata_code1_idx` (`ata_code_id` ASC),
+  CONSTRAINT `fk_job_type_ata_code1`
+    FOREIGN KEY (`ata_code_id`)
+    REFERENCES `aimcs`.`ata_code` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `aimcs`.`task_type`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `aimcs`.`task_type` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(45) NULL,
+  `description` VARCHAR(45) NULL,
+  `code` VARCHAR(45) NULL,
+  `est_man_hr` VARCHAR(45) NULL,
+  `rate_per_mh` VARCHAR(45) NULL,
+  `est_mat_cost` VARCHAR(45) NULL,
+  `type_reference` VARCHAR(45) NULL,
+  `general_description` VARCHAR(45) NULL,
+  `ata_code_id` INT NOT NULL,
+  `job_type_id` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_task_type_ata_code1_idx` (`ata_code_id` ASC),
+  INDEX `fk_task_type_job_type1_idx` (`job_type_id` ASC),
+  CONSTRAINT `fk_task_type_ata_code1`
+    FOREIGN KEY (`ata_code_id`)
+    REFERENCES `aimcs`.`ata_code` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_task_type_job_type1`
+    FOREIGN KEY (`job_type_id`)
+    REFERENCES `aimcs`.`job_type` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `aimcs`.`job_package`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `aimcs`.`job_package` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `job_control_no` VARCHAR(45) NOT NULL,
+  `description` VARCHAR(45) NULL,
+  `job_type_id` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_job_package_job_type1_idx` (`job_type_id` ASC),
+  CONSTRAINT `fk_job_package_job_type1`
+    FOREIGN KEY (`job_type_id`)
+    REFERENCES `aimcs`.`job_type` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `aimcs`.`aircraft_has_job_package`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `aimcs`.`aircraft_has_job_package` (
+  `aircraft_ID` INT(11) NOT NULL,
+  `job_package_id` INT NOT NULL,
+  PRIMARY KEY (`aircraft_ID`, `job_package_id`),
+  INDEX `fk_aircraft_has_job_package_job_package1_idx` (`job_package_id` ASC),
+  INDEX `fk_aircraft_has_job_package_aircraft1_idx` (`aircraft_ID` ASC),
+  CONSTRAINT `fk_aircraft_has_job_package_aircraft1`
+    FOREIGN KEY (`aircraft_ID`)
+    REFERENCES `aimcs`.`aircraft` (`ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_aircraft_has_job_package_job_package1`
+    FOREIGN KEY (`job_package_id`)
+    REFERENCES `aimcs`.`job_package` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = latin1;
+
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
